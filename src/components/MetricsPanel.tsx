@@ -74,8 +74,18 @@ export default function MetricsPanel(props: AlgoProps & Partial<DSProps>) {
         </div>
         <div className="heading">Legend</div>
         <div className="legend">
-          <div>Interact with the structure using the buttons above.</div>
-          <div>Blocks/Nodes highlight and move to show changes.</div>
+          <div className="legend-row">
+            <span className="legend-pill green">Interact</span>
+            <span className="legend-text">Trigger pushes, pops, inserts, etc. with the controls above.</span>
+          </div>
+          <div className="legend-row">
+            <span className="legend-pill yellow">Highlights</span>
+            <span className="legend-text">Animated blocks + glow call attention to the element being touched.</span>
+          </div>
+          <div className="legend-row">
+            <span className="legend-pill red">Metrics</span>
+            <span className="legend-text">Right column updates operations + memory usage in real time.</span>
+          </div>
         </div>
       </aside>
     )
@@ -101,9 +111,24 @@ export default function MetricsPanel(props: AlgoProps & Partial<DSProps>) {
       </div>
       <div className="heading">Legend</div>
       <div className="legend">
-        <div>Height = time/steps, Radius = memory</div>
-        <div>Color: Green (efficient), Yellow (moderate), Red (expensive)</div>
-        <div>Texture: Smooth (best), Rough (avg), Spiky (worst)</div>
+        <div className="legend-row">
+          <span className="legend-pill green">Height</span>
+          <span className="legend-text">Represents time / step count for the current run + reference glyphs.</span>
+        </div>
+        <div className="legend-row">
+          <span className="legend-pill yellow">Radius</span>
+          <span className="legend-text">Encodes approximate memory usage (wider = more memory).</span>
+        </div>
+        <div className="legend-row" style={{ flexWrap: 'wrap' }}>
+          <span className="legend-pill green">Efficient</span>
+          <span className="legend-pill yellow">Balanced</span>
+          <span className="legend-pill red">Expensive</span>
+          <span className="legend-text">Color scale maps complexity classes.</span>
+        </div>
+        <div className="legend-row">
+          <span className="legend-pill red">Texture</span>
+          <span className="legend-text">Smooth (best), medium (avg), spiky (worst) surfaces.</span>
+        </div>
       </div>
     </aside>
   )
