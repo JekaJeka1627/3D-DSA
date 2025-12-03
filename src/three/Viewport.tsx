@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Grid, Html, MeshDistortMaterial } from '@react-three/drei'
+import { OrbitControls, Grid, Html, MeshDistortMaterial, Text } from '@react-three/drei'
 import { RunResult } from '@/types/metrics'
 import type { DSAction, DSMetrics } from '@/types/ds'
 import { algorithmsById } from '@/algorithms'
@@ -72,7 +72,8 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
     ? [run.trace[stepIndex]?.i ?? -1, run.trace[stepIndex]?.j ?? -1]
     : null
   const stepType = run?.trace[stepIndex]?.type
-
+  const small = new Set(["O(1)", "O(log n)", "O(n)"]);
+  const big=new Set(["O(n^2)"]);
   return (
     <div className="viewport">
       <Canvas camera={{ position: [0, 6, 12], fov: 50 }}>
@@ -108,9 +109,9 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
               const liveR = 0.5 + Math.min(liveMem / 5000, 0.8)
               const items = [
                 { key: 'live', label: 'Live', steps: liveSteps, cls: '—', x: -3.0, r: liveR, h: liveH, live: true },
-                { key: 'best', label: 'Best', steps: bestSteps, cls: meta.best, x: -1.0 },
-                { key: 'avg', label: 'Avg', steps: avgSteps, cls: meta.average, x: 1.0 },
-                { key: 'worst', label: 'Worst', steps: worstSteps, cls: meta.worst, x: 3.0 },
+                { key: 'best', label: 'Best', steps: bestSteps, cls: meta.best, x: 0.0 },
+                { key: 'avg', label: 'Avg', steps: avgSteps, cls: meta.average, x: 2.0+(big.has(meta.average)?1:(small.has(meta.average)?-0.5:0))},
+                { key: 'worst', label: 'Worst', steps: worstSteps, cls: meta.worst, x: 4.0+(big.has(meta.average)?1:(small.has(meta.average)?-0.5:0))+(big.has(meta.worst)?1:(small.has(meta.average)?-0.5:0))},
               ] as const
               return items.map((it, idx) => {
                 const h = stepsToHeight(it.steps)
@@ -135,8 +136,21 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
                       <circleGeometry args={[r * 0.9, 24]} />
                       <meshBasicMaterial color={'#1a1a2b'} />
                     </mesh>
+                    <Html
+                      position={[0, -0.85, 0]}  // tweak this to move it farther/closer
+                      center
+                      style={{
+                        color: 'white',
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {it.label}<br/>
+                      {it.cls}
+                    </Html>
                     {hovered === it.key && (
-                      <Html center position={[0, -0.75, 0]} style={{ pointerEvents: 'none' }}>
+                      <Html center position={[0, -0, 0]} style={{ pointerEvents: 'none' }}>
                         <div className="tooltip tooltip-lg tooltip-below">
                           <div className="tooltip-title">{it.label} Case</div>
                           <div>Complexity: {it.cls}</div>
@@ -299,12 +313,22 @@ function LinkedListDS({ action }: { action?: { action: DSAction; nonce: number }
 }
 
 function StackDS({ action }: { action?: { action: DSAction; nonce: number } }) {
+  let gap=0.85
+  let base=0.35
+  type AnimRow = { 
+    y: number
+    targetY: number
+    removing?: boolean
+  }
   const [items, setItems] = React.useState<number[]>([0, 1, 2])
-  const [anim, setAnim] = React.useState<Record<number, { y: number; targetY: number; removing?: boolean }>>({
-    0: { y: 0.35, targetY: 0.35 },
-    1: { y: 1.05, targetY: 1.05 },
-    2: { y: 1.75, targetY: 1.75 },
-  })
+  const [anim, setAnim] = React.useState<Record<number, AnimRow>>(() =>
+    Object.fromEntries(
+      [0, 1, 2].map(i => {
+        const y = base + i * gap
+        return [i, { y, targetY: y }]
+      })
+    ) as Record<number, AnimRow>   // <-- Cast required
+  )
   const speed = 4
   useFrame((_, dt) => {
     setAnim((prev) => {
@@ -333,7 +357,7 @@ function StackDS({ action }: { action?: { action: DSAction; nonce: number } }) {
       setItems((arr) => {
         const last = arr.length ? arr[arr.length - 1] : -1
         const id = last + 1
-        const newY = arr.length * 0.7 + 0.35
+        const newY = arr.length * gap + base
         setAnim((m) => ({ ...m, [id]: { y: newY + 1.2, targetY: newY } }))
         return [...arr, id]
       })
@@ -342,19 +366,19 @@ function StackDS({ action }: { action?: { action: DSAction; nonce: number } }) {
       setItems((arr) => {
         if (arr.length === 0) return arr
         const id = arr[arr.length - 1]
-        setAnim((m) => ({ ...m, [id]: { ...(m[id] ?? { y: (arr.length - 1) * 0.7 + 0.35, targetY: (arr.length - 1) * 0.7 + 0.35 }), targetY: (arr.length - 1) * 0.7 + 1.8, removing: true } }))
+        setAnim((m) => ({ ...m, [id]: { ...(m[id] ?? { y: (arr.length - 1) * gap + base, targetY: (arr.length - 1) * gap + base }), targetY: (arr.length - 1) * gap + 1.8, removing: true } }))
         return arr.slice(0, -1)
       })
     }
   }, [action])
 
   return (
-          <group position={[0, -2.0, 0]}>
+    <group position={[0, -2.0, 0]}>
       {items.map((id, i) => {
         const a = anim[id]
         const color = i === items.length - 1 ? '#ffd166' : '#6cf9e6'
         return (
-          <mesh key={id} position={[0, a?.y ?? i * 0.7 + 0.35, 0]}>
+          <mesh key={id} position={[0, a?.y ?? i * gap + base, 0]}>
             <boxGeometry args={[1, 0.7, 1]} />
             <meshStandardMaterial color={color} metalness={0.15} roughness={0.4} />
           </mesh>
@@ -450,44 +474,76 @@ function QueueDS({ action }: { action?: { action: DSAction; nonce: number } }) {
 }
 
 function BSTDS({ action }: { action?: { action: DSAction; nonce: number } }) {
-  type Node = { idx: number; value: number; x: number; y: number; targetY: number }
+  type Node = { 
+    idx: number
+    value: number
+    x: number
+    y: number
+    targetY: number
+  }
+
   const [nodes, setNodes] = React.useState<Record<number, Node>>({})
   const [values, setValues] = React.useState<Record<number, number>>({})
-  const spacingX = 1.4
-  const baseY = 0.35
+
+  const baseY = 2.0          // root height
+  const levelGap = 0.8       // vertical distance between levels
+
+  const baseWidth = 2.0      // width at depth 0
+  const growth   = 1.3       // > 1 → width grows with depth
+  const maxWidth = 10.0      // hard cap so it doesn’t get crazy
+
   function idxToPos(idx: number) {
     const depth = Math.floor(Math.log2(idx))
     const first = 1 << depth
     const pos = idx - first
-    const x = (pos - ((first >> 1) - 0.5)) * spacingX
-    return { x }
+    const count = 1 << depth
+
+    // t in [-1, 1] across the level
+    const t = count === 1 ? 0 : (pos / (count - 1)) * 2 - 1
+
+    // width increases with depth but is clamped
+    const width = Math.min(maxWidth, baseWidth * Math.pow(growth, depth))
+    const x = t * (width / 2)
+    const y = baseY - depth * levelGap
+
+    return { x, y }
   }
+
   function insertValue(v: number) {
     let idx = 1
     while (values[idx] !== undefined) {
       idx = v < values[idx] ? idx * 2 : idx * 2 + 1
       if (idx > 1024) break
     }
-    const { x } = idxToPos(idx)
+
+    const { x, y } = idxToPos(idx)
+
     setValues((m) => ({ ...m, [idx]: v }))
-    setNodes((m) => ({ ...m, [idx]: { idx, value: v, x, y: baseY + 2, targetY: baseY } }))
+    setNodes((m) => ({
+      ...m,
+      [idx]: { idx, value: v, x, y: y + 2, targetY: y }, // drop down
+    }))
   }
+
   useFrame((_, dt) => {
     setNodes((prev) => {
       let changed = false
-      const next: typeof prev = { ...prev }
-      for (const k of Object.keys(prev)) {
+      const next = { ...prev }
+
+      for (const k of Object.keys(next)) {
         const id = Number(k)
-        const n = prev[id]
+        const n = next[id]
         const dy = n.targetY - n.y
         if (Math.abs(dy) > 0.01) {
           n.y += Math.sign(dy) * Math.min(Math.abs(dy), 2.5 * dt)
           changed = true
         }
       }
-      return changed ? { ...next } : prev
+
+      return changed ? next : prev
     })
   })
+
   React.useEffect(() => {
     if (!action) return
     if (action.action === 'bst:insert') {
@@ -495,77 +551,140 @@ function BSTDS({ action }: { action?: { action: DSAction; nonce: number } }) {
       insertValue(v)
     }
   }, [action])
+
   const entries = Object.values(nodes)
-  return (
-    <group>
-      {entries.map((n) => (
-        <mesh key={n.idx} position={[n.x, n.y, 0]}>
+
+return (
+  <group>
+    {/* nodes */}
+    {entries.map((n) => (
+      <group key={n.idx} position={[n.x, n.y, 0]}>
+        <mesh>
           <sphereGeometry args={[0.3, 32, 16]} />
-          <meshStandardMaterial color={'#b388eb'} metalness={0.2} roughness={0.35} />
+          <meshStandardMaterial color="#b388eb" metalness={0.2} roughness={0.35} />
         </mesh>
-      ))}
-      {entries.map((n) => {
-        const parent = Math.floor(n.idx / 2)
-        if (!parent || !nodes[parent]) return null
-        const px = nodes[parent].x
-        const py = nodes[parent].y
-        const dx = n.x - px
-        const dy = n.y - py
-        const len = Math.sqrt(dx * dx + dy * dy)
-        const r = 0.3
-        const visLen = Math.max(0.001, len - 2 * r)
-        const angle = Math.atan2(dx, dy)
-        return (
-          <mesh key={'e' + n.idx} position={[px + dx / 2, py + dy / 2, 0]} rotation={[0, 0, angle]}>
-            <cylinderGeometry args={[0.04, 0.04, visLen, 8]} />
-            <meshStandardMaterial color={'#666a'} />
-          </mesh>
-        )
-      })}
-    </group>
-  )
+
+        {/* value label */}
+        <Text
+          position={[0, 0, 0.4]}   // a bit in front of the sphere
+          fontSize={0.25}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.01}
+          outlineColor="#000"
+        >
+          {n.value}
+        </Text>
+      </group>
+    ))}
+
+    {/* edges */}
+    {entries.map((n) => {
+      const parentIdx = Math.floor(n.idx / 2)
+      const parent = nodes[parentIdx]
+      if (!parent) return null
+
+      const px = parent.x
+      const py = parent.y
+      const dx = n.x - px
+      const dy = n.y - py
+      const len = Math.sqrt(dx * dx + dy * dy)
+
+      const r = 0.3
+      const visLen = Math.max(0.001, len - 2 * r)
+
+      const angle = Math.atan2(-dx, dy) // fixed orientation
+
+      return (
+        <mesh
+          key={'edge' + n.idx}
+          position={[px + dx / 2, py + dy / 2, 0]}
+          rotation={[0, 0, angle]}
+        >
+          <cylinderGeometry args={[0.04, 0.04, visLen, 8]} />
+          <meshStandardMaterial color="#666a" />
+        </mesh>
+      )
+    })}
+  </group>
+)
+
 }
 
-function HeapDS({ action, onDSStep }: { action?: { action: DSAction; nonce: number }, onDSStep?: (tag?: string) => void }) {
-  const [arr, setArr] = React.useState<number[]>([5, 3, 4])
-  const [pos, setPos] = React.useState<Record<number, { y: number; targetY: number }>>({
-    0: { y: 0.35, targetY: 0.35 },
-    1: { y: 0.35, targetY: 0.35 },
-    2: { y: 0.35, targetY: 0.35 },
-  })
+function HeapDS({
+  action,
+  onDSStep,
+}: {
+  action?: { action: DSAction; nonce: number }
+  onDSStep?: (tag?: string) => void
+}) {
   const spacingX = 1.2
+
+  // layout helper: position nodes by tree level
   function idxToXY(i: number) {
     const idx = i + 1
     const depth = Math.floor(Math.log2(idx))
     const first = 1 << depth
     const posInRow = idx - first
     const x = (posInRow - ((first >> 1) - 0.5)) * spacingX
-    return { x, y: 0.35 }
+    const baseY = 1.5 - depth * 0.7 // root high, children lower
+    return { x, y: baseY }
   }
+
+  function defaultPosFor(i: number) {
+    const { y } = idxToXY(i)
+    return { y, targetY: y }
+  }
+
+  const [arr, setArr] = React.useState<number[]>([5, 3, 4])
+  const [pos, setPos] = React.useState<
+    Record<number, { y: number; targetY: number }>
+  >({
+    0: defaultPosFor(0),
+    1: defaultPosFor(1),
+    2: defaultPosFor(2),
+  })
+
   useFrame((_, dt) => {
     setPos((prev) => {
       let changed = false
-      const next = { ...prev }
+      const next: typeof prev = {}
+
       Object.keys(prev).forEach((k) => {
-        const a = prev[Number(k)]
+        const idx = Number(k)
+        const a = prev[idx]
         const dy = a.targetY - a.y
+        let ny = a.y
         if (Math.abs(dy) > 0.01) {
-          a.y += Math.sign(dy) * Math.min(Math.abs(dy), 2.0 * dt)
+          ny += Math.sign(dy) * Math.min(Math.abs(dy), 2.0 * dt)
           changed = true
         }
+        next[idx] = { ...a, y: ny }
       })
-      return changed ? { ...next } : prev
+
+      return changed ? next : prev
     })
   })
+
   React.useEffect(() => {
     if (!action) return
+
     if (action.action === 'heap:insert') {
       setArr((a) => {
         const v = Math.floor(Math.random() * 99) + 1
         const i = a.length
-        setPos((m) => ({ ...m, [i]: { y: 2.0, targetY: 0.35 } }))
+        const base = defaultPosFor(i)
+
+        // new node falls into its row
+        setPos((m) => ({
+          ...m,
+          [i]: { y: base.y + 2.0, targetY: base.y },
+        }))
+
         const next = [...a, v]
-        // sift-up logic
+
+        // sift-up
         let idx = i
         while (idx > 0) {
           const p = Math.floor((idx - 1) / 2)
@@ -573,19 +692,38 @@ function HeapDS({ action, onDSStep }: { action?: { action: DSAction; nonce: numb
           if (next[idx] > next[p]) {
             ;[next[idx], next[p]] = [next[p], next[idx]]
             onDSStep?.('heap:swap')
-            setPos((m) => ({ ...m, [idx]: { ...(m[idx] ?? { y: 0.35, targetY: 0.35 }), y: (m[idx]?.y ?? 0.35) + 0.6 }, [p]: { ...(m[p] ?? { y: 0.35, targetY: 0.35 }), y: (m[p]?.y ?? 0.35) + 0.6 } }))
+
+            const baseIdx = defaultPosFor(idx).y
+            const baseP = defaultPosFor(p).y
+
+            setPos((m) => ({
+              ...m,
+              [idx]: {
+                ...(m[idx] ?? { y: baseIdx, targetY: baseIdx }),
+                y: (m[idx]?.y ?? baseIdx) + 0.6,
+                targetY: baseIdx,
+              },
+              [p]: {
+                ...(m[p] ?? { y: baseP, targetY: baseP }),
+                y: (m[p]?.y ?? baseP) + 0.6,
+                targetY: baseP,
+              },
+            }))
+
             idx = p
           } else break
         }
         return next
       })
     }
+
     if (action.action === 'heap:extract') {
       setArr((a) => {
         if (a.length === 0) return a
         const next = [...a]
         next[0] = next[next.length - 1]
         next.pop()
+
         // sift-down
         let idx = 0
         while (true) {
@@ -598,7 +736,24 @@ function HeapDS({ action, onDSStep }: { action?: { action: DSAction; nonce: numb
           if (next[child] > next[idx]) {
             ;[next[child], next[idx]] = [next[idx], next[child]]
             onDSStep?.('heap:swap')
-            setPos((m) => ({ ...m, [idx]: { ...(m[idx] ?? { y: 0.35, targetY: 0.35 }), y: (m[idx]?.y ?? 0.35) + 0.6 }, [child]: { ...(m[child] ?? { y: 0.35, targetY: 0.35 }), y: (m[child]?.y ?? 0.35) + 0.6 } }))
+
+            const baseIdx = defaultPosFor(idx).y
+            const baseChild = defaultPosFor(child).y
+
+            setPos((m) => ({
+              ...m,
+              [idx]: {
+                ...(m[idx] ?? { y: baseIdx, targetY: baseIdx }),
+                y: (m[idx]?.y ?? baseIdx) + 0.6,
+                targetY: baseIdx,
+              },
+              [child]: {
+                ...(m[child] ?? { y: baseChild, targetY: baseChild }),
+                y: (m[child]?.y ?? baseChild) + 0.6,
+                targetY: baseChild,
+              },
+            }))
+
             idx = child
           } else break
         }
@@ -606,30 +761,68 @@ function HeapDS({ action, onDSStep }: { action?: { action: DSAction; nonce: numb
       })
     }
   }, [action])
+
   return (
     <group>
+      {/* nodes + labels */}
       {arr.map((v, i) => {
-        const { x } = idxToXY(i)
-        const y = pos[i]?.y ?? 0.35
+        const { x, y: baseY } = idxToXY(i)
+        const animatedY = pos[i]?.y ?? baseY
         return (
-          <mesh key={i} position={[x, y, 0]}>
-            <sphereGeometry args={[0.28, 32, 16]} />
-            <meshStandardMaterial color={'#6cf9e6'} metalness={0.2} roughness={0.35} />
-          </mesh>
+          <group key={i} position={[x, animatedY, 0]}>
+            <mesh>
+              <sphereGeometry args={[0.28, 32, 16]} />
+              <meshStandardMaterial
+                color={'#6cf9e6'}
+                metalness={0.2}
+                roughness={0.35}
+              />
+            </mesh>
+            {/* value label slightly in front of the sphere */}
+            <Text
+              position={[0, 0, 0.31]}
+              fontSize={0.22}
+              color="white"
+              anchorX="center"
+              anchorY="middle"
+              outlineWidth={0.02}
+              outlineColor="#000000"
+            >
+              {String(v)}
+            </Text>
+          </group>
         )
       })}
+
+      {/* edges – recomputed from animated positions so they don't flip */}
       {arr.map((_, i) => {
         if (i === 0) return null
         const parent = Math.floor((i - 1) / 2)
-        const { x: x1, y: y1 } = idxToXY(i)
-        const { x: x0, y: y0 } = idxToXY(parent)
-        const dx = x1 - x0, dy = y1 - y0
+
+        const childBase = idxToXY(i)
+        const parentBase = idxToXY(parent)
+
+        const x1 = childBase.x
+        const y1 = pos[i]?.y ?? childBase.y
+
+        const x0 = parentBase.x
+        const y0 = pos[parent]?.y ?? parentBase.y
+
+        const dx = x1 - x0
+        const dy = y1 - y0
         const len = Math.sqrt(dx * dx + dy * dy)
         const r = 0.28
         const visLen = Math.max(0.001, len - 2 * r)
-        const angle = Math.atan2(dx, dy)
+
+        // cylinder is aligned with +Y, rotate around Z to point along (dx, dy)
+        const angle = Math.atan2(dx, -dy)
+
         return (
-          <mesh key={'e' + i} position={[x0 + dx / 2, y0 + dy / 2, 0]} rotation={[0, 0, angle]}>
+          <mesh
+            key={'e' + i}
+            position={[(x0 + x1) / 2, (y0 + y1) / 2, 0]}
+            rotation={[0, 0, angle]}
+          >
             <cylinderGeometry args={[0.04, 0.04, visLen, 8]} />
             <meshStandardMaterial color={'#666a'} />
           </mesh>
@@ -638,6 +831,8 @@ function HeapDS({ action, onDSStep }: { action?: { action: DSAction; nonce: numb
     </group>
   )
 }
+
+
 
 function HashTableDS({ action, onDSStep }: { action?: { action: DSAction; nonce: number }, onDSStep?: (tag?: string) => void }) {
   const buckets = 6

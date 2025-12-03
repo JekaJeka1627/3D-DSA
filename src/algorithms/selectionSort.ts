@@ -1,4 +1,6 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
+
 
 export const SelectionSortMeta: AlgorithmMetadata = {
   id: 'selection',
@@ -11,19 +13,8 @@ export const SelectionSortMeta: AlgorithmMetadata = {
   summary: 'Simple but slow: always O(n^2) comparisons. Good for teaching but rarely used in practice.',
 }
 
-function buildArray(n: number, mode: RunConfig['input']): number[] {
-  const arr = Array.from({ length: n }, (_, i) => i + 1)
-  if (mode === 'Random') {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[arr[i], arr[j]] = [arr[j], arr[i]]
-    }
-  } else if (mode === 'Reverse') arr.reverse()
-  return arr
-}
-
 export function runSelectionSort(cfg: RunConfig): RunResult {
-  const a = buildArray(cfg.n, cfg.input)
+  const a = generateArray(cfg.n, cfg.input)
   const arr = a.slice()
   const trace: TraceStep[] = [{ type: 'set', array: arr.slice() }]
   let steps = 0, comparisons = 0, swaps = 0
