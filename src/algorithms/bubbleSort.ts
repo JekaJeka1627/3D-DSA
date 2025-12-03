@@ -1,4 +1,5 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
 
 export const BubbleSortMeta: AlgorithmMetadata = {
   id: 'bubble',
@@ -9,19 +10,6 @@ export const BubbleSortMeta: AlgorithmMetadata = {
   worst: 'O(n^2)',
   definition: 'Bubble Sort repeatedly steps through the list, compares adjacent pairs and swaps them if they are in the wrong order.',
   summary: 'On each pass, the largest remaining element “bubbles up” to its final position. It is simple but inefficient on large inputs. Best case is O(n) when already sorted; average and worst are O(n^2).'
-}
-
-function generateArray(n: number, mode: RunConfig['input']): number[] {
-  const arr = Array.from({ length: n }, (_, i) => i + 1)
-  if (mode === 'Random') {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[arr[i], arr[j]] = [arr[j], arr[i]]
-    }
-  } else if (mode === 'Reverse') {
-    arr.reverse()
-  }
-  return arr
 }
 
 export function runBubbleSort(cfg: RunConfig): RunResult {

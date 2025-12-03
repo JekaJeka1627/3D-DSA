@@ -1,4 +1,5 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
 
 export const MergeSortMeta: AlgorithmMetadata = {
   id: 'merge',
@@ -11,19 +12,8 @@ export const MergeSortMeta: AlgorithmMetadata = {
   summary: 'Stable with guaranteed O(n log n) time. Requires extra space for merging, but offers predictable performance regardless of input order.'
 }
 
-function arrayFor(n: number, mode: RunConfig['input']) {
-  const a = Array.from({ length: n }, (_, i) => i + 1)
-  if (mode === 'Random') {
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[a[i], a[j]] = [a[j], a[i]]
-    }
-  } else if (mode === 'Reverse') a.reverse()
-  return a
-}
-
 export function runMergeSort(cfg: RunConfig): RunResult {
-  const arr = arrayFor(cfg.n, cfg.input)
+  const arr = generateArray(cfg.n, cfg.input)
   const a = arr.slice()
   const aux = a.slice()
   const trace: TraceStep[] = [{ type: 'set', array: a.slice() }]

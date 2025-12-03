@@ -1,4 +1,6 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
+
 
 export const InsertionSortMeta: AlgorithmMetadata = {
   id: 'insertion',
@@ -13,17 +15,7 @@ export const InsertionSortMeta: AlgorithmMetadata = {
 
 export function runInsertionSort(cfg: RunConfig): RunResult {
   // Create initial array depending on input mode
-  const arr = (() => {
-    const base = Array.from({ length: cfg.n }, (_, i) => i + 1)
-    if (cfg.input === 'Random') {
-      for (let i = base.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[base[i], base[j]] = [base[j], base[i]]
-      }
-    } else if (cfg.input === 'Reverse') base.reverse()
-    return base
-  })()
-
+  const arr =generateArray(cfg.n, cfg.input)
   const a = arr.slice()
   const trace: TraceStep[] = [{ type: 'set', array: a.slice() }]
   let steps = 0, comparisons = 0, swaps = 0

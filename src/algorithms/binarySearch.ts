@@ -1,4 +1,5 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
 
 export const BinarySearchMeta: AlgorithmMetadata = {
   id: 'binary-search',
@@ -12,7 +13,7 @@ export const BinarySearchMeta: AlgorithmMetadata = {
 }
 
 export function runBinarySearch(cfg: RunConfig): RunResult {
-  const arr = Array.from({ length: cfg.n }, (_, i) => i + 1)
+  const arr = generateArray(cfg.n, "Sorted" )
   const target = arr[Math.floor(Math.random() * arr.length)]
   const trace: TraceStep[] = [{ type: 'set', array: arr.slice() }]
   let steps = 0, comparisons = 0, swaps = 0

@@ -1,4 +1,6 @@
 import { AlgorithmDef, AlgorithmMetadata, RunConfig, RunResult, TraceStep } from '@/types/metrics'
+import {generateArray} from '@/algorithms/common'
+
 
 export const QuickSortMeta: AlgorithmMetadata = {
   id: 'quick',
@@ -11,19 +13,8 @@ export const QuickSortMeta: AlgorithmMetadata = {
   summary: 'In-place and typically very fast due to good cache behavior. Performance depends on pivot choice. Average/best O(n log n), worst O(n^2) if partitions are unbalanced.'
 }
 
-function makeArray(n: number, mode: RunConfig['input']): number[] {
-  const base = Array.from({ length: n }, (_, i) => i + 1)
-  if (mode === 'Random') {
-    for (let i = base.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[base[i], base[j]] = [base[j], base[i]]
-    }
-  } else if (mode === 'Reverse') base.reverse()
-  return base
-}
-
 export function runQuickSort(cfg: RunConfig): RunResult {
-  const a = makeArray(cfg.n, cfg.input)
+  const a = generateArray(cfg.n, cfg.input)
   const arr = a.slice()
   const trace: TraceStep[] = [{ type: 'set', array: arr.slice() }]
   let steps = 0, comparisons = 0, swaps = 0
