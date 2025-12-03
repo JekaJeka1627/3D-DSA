@@ -72,7 +72,8 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
     ? [run.trace[stepIndex]?.i ?? -1, run.trace[stepIndex]?.j ?? -1]
     : null
   const stepType = run?.trace[stepIndex]?.type
-
+  const small = new Set(["O(1)", "O(log n)", "O(n)"]);
+  const big=new Set(["O(n^2)"]);
   return (
     <div className="viewport">
       <Canvas camera={{ position: [0, 6, 12], fov: 50 }}>
@@ -108,9 +109,9 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
               const liveR = 0.5 + Math.min(liveMem / 5000, 0.8)
               const items = [
                 { key: 'live', label: 'Live', steps: liveSteps, cls: '—', x: -3.0, r: liveR, h: liveH, live: true },
-                { key: 'best', label: 'Best', steps: bestSteps, cls: meta.best, x: -1.0 },
-                { key: 'avg', label: 'Avg', steps: avgSteps, cls: meta.average, x: 1.0 },
-                { key: 'worst', label: 'Worst', steps: worstSteps, cls: meta.worst, x: 3.0 },
+                { key: 'best', label: 'Best', steps: bestSteps, cls: meta.best, x: 0.0 },
+                { key: 'avg', label: 'Avg', steps: avgSteps, cls: meta.average, x: 2.0+(big.has(meta.average)?1:(small.has(meta.average)?-0.5:0))},
+                { key: 'worst', label: 'Worst', steps: worstSteps, cls: meta.worst, x: 4.0+(big.has(meta.average)?1:(small.has(meta.average)?-0.5:0))+(big.has(meta.worst)?1:(small.has(meta.average)?-0.5:0))},
               ] as const
               return items.map((it, idx) => {
                 const h = stepsToHeight(it.steps)
@@ -135,8 +136,21 @@ export default function Viewport({ run, stepIndex, algoId, n, tab, dsId, dsActio
                       <circleGeometry args={[r * 0.9, 24]} />
                       <meshBasicMaterial color={'#1a1a2b'} />
                     </mesh>
+                    <Html
+                      position={[0, -0.85, 0]}  // tweak this to move it farther/closer
+                      center
+                      style={{
+                        color: 'white',
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      {it.label}<br/>
+                      {it.cls}
+                    </Html>
                     {hovered === it.key && (
-                      <Html center position={[0, -0.75, 0]} style={{ pointerEvents: 'none' }}>
+                      <Html center position={[0, -0, 0]} style={{ pointerEvents: 'none' }}>
                         <div className="tooltip tooltip-lg tooltip-below">
                           <div className="tooltip-title">{it.label} Case</div>
                           <div>Complexity: {it.cls}</div>
