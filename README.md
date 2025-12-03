@@ -1,5 +1,7 @@
 # 3D-DSA
 
+## Presentation Slides: https://docs.google.com/presentation/d/1P0FRXt-9_MyoCqpUYlC9fZlXCyhMwkLFSTTtK_XFrWk/edit?usp=sharing
+
 A dark-themed, React + Three.js playground for visualizing classic data structures and algorithms (DSA) as immersive 3D scenes. The experience highlights performance characteristics (time, space, complexity class) through animated glyphs so learners can *see* how algorithms behave.
 
 ## Project Goals
