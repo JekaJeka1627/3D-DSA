@@ -3,10 +3,12 @@ import Sidebar, { SidebarTab } from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
 import MetricsPanel from '@/components/MetricsPanel'
 import Viewport from '@/three/Viewport'
+import SettingsModal from '@/components/SettingsModal'
 import { algorithms, algorithmsById } from '@/algorithms'
 import { RunConfig, RunResult } from '@/types/metrics'
 import type { DSAction } from '@/types/ds'
 import type { DSMetrics } from '@/types/ds'
+import { addToHistory } from '@/utils/storage'
 
 export default function App() {
   const [config, setConfig] = useState<RunConfig>({ n: 25, input: 'Random' })
@@ -20,6 +22,7 @@ export default function App() {
   const [dsAction, setDSAction] = useState<{ action: DSAction; nonce: number } | null>(null)
   const [speed, setSpeed] = useState<'Slow' | 'Normal' | 'Fast'>('Normal')
   const [resetViewNonce, setResetViewNonce] = useState<number>(0)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [dsCounts, setDsCounts] = useState<Record<string, number>>({ 'array': 10, 'linked-list': 6, 'stack': 3, 'queue': 4 })
   const [dsMetrics, setDsMetrics] = useState<Record<string, DSMetrics>>({
     'array': { operations: 0, push: 0, pop: 0, enqueue: 0, dequeue: 0, insertHead: 0, deleteHead: 0, memoryBytes: 10 * 64 },
@@ -75,9 +78,42 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // Save to history when algorithm run completes (only for algorithms tab)
+  useEffect(() => {
+    if (tab === 'Algorithms' && !running && result && stepIndex >= result.trace.length - 1 && result.metrics.steps > 0) {
+      addToHistory({
+        algorithmId: selectedAlgoId,
+        algorithmName: algorithmsById[selectedAlgoId].meta.name,
+        config,
+        metrics: {
+          steps: result.metrics.steps,
+          comparisons: result.metrics.comparisons,
+          swaps: result.metrics.swaps,
+          memoryBytes: result.metrics.memoryBytes,
+        },
+      })
+    }
+  }, [running, result, stepIndex, tab, selectedAlgoId, config])
+
   const onRun = () => setRunning(true)
   const onPause = () => setRunning(false)
   const onReset = () => { setRunning(false); setStepIndex(0) }
+
+  const handleLoadPreset = (algorithmId: string, presetConfig: RunConfig) => {
+    setSelectedAlgoId(algorithmId)
+    setConfig(presetConfig)
+    setRunning(false)
+    setStepIndex(0)
+    setTab('Algorithms')
+  }
+
+  const handleLoadHistory = (algorithmId: string, historyConfig: RunConfig) => {
+    setSelectedAlgoId(algorithmId)
+    setConfig(historyConfig)
+    setRunning(false)
+    setStepIndex(0)
+    setTab('Algorithms')
+  }
 
   const handleDSAction = (action: DSAction) => {
     // Update metrics and counts for selected DS
@@ -157,6 +193,7 @@ export default function App() {
         speed={speed}
         onSpeed={setSpeed}
         onResetView={() => setResetViewNonce(Date.now())}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
       <Viewport
         run={result}
@@ -183,6 +220,15 @@ export default function App() {
         dsId={selectedDSId}
         dsMetrics={dsMetrics[selectedDSId] ?? { operations: 0, push: 0, pop: 0, enqueue: 0, dequeue: 0, insertHead: 0, deleteHead: 0, memoryBytes: 0 }}
         onDSAction={(action) => handleDSAction(action as DSAction)}
+      />
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        currentAlgorithmId={selectedAlgoId}
+        currentAlgorithmName={algorithmsById[selectedAlgoId].meta.name}
+        currentConfig={config}
+        onLoadPreset={handleLoadPreset}
+        onLoadHistory={handleLoadHistory}
       />
     </div>
   )

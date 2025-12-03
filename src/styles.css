@@ -65,3 +65,251 @@ button.danger { background: #3a1f26; border-color: #6a3a4a; }
 .tooltip-title { font-weight: 600; color: var(--accent-2); margin-bottom: 4px; }
 .tooltip-lg { font-size: 16px; line-height: 1.35; }
 .tooltip-below { transform: translate3d(0, 16px, 0); }
+
+/* Settings Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--panel);
+  border: 1px solid #2a2a44;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1f1f2a;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid #1f1f2a;
+}
+
+.modal-tab {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-tab:hover {
+  color: var(--text);
+}
+
+.modal-tab.active {
+  color: var(--accent-2);
+  border-bottom-color: var(--accent-2);
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-section h3 {
+  font-size: 16px;
+  color: var(--text);
+  margin: 0 0 12px 0;
+}
+
+/* Presets Tab */
+.preset-save {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.preset-save input {
+  flex: 1;
+  background: #161624;
+  color: var(--text);
+  border: 1px solid #2a2a44;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.current-config {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px 12px;
+  background: rgba(138, 168, 255, 0.05);
+  border: 1px dashed #2a2a44;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.preset-list,
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preset-item,
+.history-item {
+  background: rgba(20, 20, 32, 0.6);
+  border: 1px solid #2a2a44;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.15s ease;
+}
+
+.preset-item:hover,
+.history-item:hover {
+  border-color: #3a3a54;
+}
+
+.preset-info,
+.history-info {
+  flex: 1;
+}
+
+.preset-info strong,
+.history-info strong {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.preset-details,
+.history-config,
+.history-metrics {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.preset-timestamp,
+.history-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.preset-actions,
+.history-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.preset-actions button,
+.history-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.empty-state {
+  color: var(--muted);
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 14px;
+}
+
+/* History Tab */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.history-header h3 {
+  margin: 0;
+}
+
+/* Export Tab */
+.export-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(20, 20, 32, 0.6);
+  border: 1px solid #2a2a44;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.export-info {
+  flex: 1;
+}
+
+.export-info strong {
+  font-size: 14px;
+  color: var(--text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.export-info p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.export-option button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

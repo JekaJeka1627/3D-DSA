@@ -11,9 +11,10 @@ interface Props {
   speed: 'Slow' | 'Normal' | 'Fast'
   onSpeed: (s: 'Slow' | 'Normal' | 'Fast') => void
   onResetView: () => void
+  onOpenSettings: () => void
 }
 
-export default function TopBar({ config, setConfig, running, onRun, onPause, onReset, speed, onSpeed, onResetView }: Props) {
+export default function TopBar({ config, setConfig, running, onRun, onPause, onReset, speed, onSpeed, onResetView, onOpenSettings }: Props) {
   return (
     <div className="topbar">
       <span className="heading">Controls</span>
@@ -48,6 +49,7 @@ export default function TopBar({ config, setConfig, running, onRun, onPause, onR
         </select>
       </div>
       <button onClick={onResetView}>Reset View</button>
+      <button onClick={onOpenSettings} title="Settings">⚙️</button>
       <div className="spacer" />
       {!running ? (
         <button className="primary" onClick={onRun}>Run</button>
