@@ -305,7 +305,82 @@ interface TraceStep {
 
 ---
 
-## Slide 12: Learning Outcomes & Future Development
+## Slide 12: Data Storage & Persistence
+
+### Long-term Data Management
+
+**Storage Technology: Browser LocalStorage**
+
+The program implements client-side persistent storage using the browser's LocalStorage API, allowing users to save their work across sessions without requiring a backend server or database.
+
+**Three Storage Categories:**
+
+**1. Presets** (Custom Configurations)
+- Save favorite algorithm configurations
+- Store algorithm ID, input size, and input type
+- Quick access to commonly used test scenarios
+- Format: JSON objects in localStorage
+- Key: `3d-dsa-presets`
+
+**2. Run History** (Performance Tracking)
+- Automatically records completed algorithm runs
+- Captures metrics: steps, comparisons, swaps, memory usage
+- Stores last 10 runs for quick comparison
+- Format: JSON array in localStorage
+- Key: `3d-dsa-history`
+
+**3. User Settings** (Preferences)
+- Default playback speed (Slow/Normal/Fast)
+- Default input size
+- Format: JSON object in localStorage
+- Key: `3d-dsa-settings`
+
+**Export Capabilities:**
+
+**CSV Export** (`.csv` files)
+- Export run history to CSV format
+- Columns: Timestamp, Algorithm, Input Size, Input Type, Steps, Comparisons, Swaps, Memory
+- Perfect for importing into Excel, Google Sheets, or data analysis tools
+- Use case: Academic research, performance comparisons, report generation
+
+**JSON Export/Import** (`.json` files)
+- Full backup of presets and history
+- Human-readable JSON format with proper indentation
+- Import capability for restoring data or sharing configurations
+- Use case: Backup, migration between browsers, sharing setups with classmates
+
+**Data Structure:**
+```typescript
+interface SavedPreset {
+  id: string
+  name: string
+  algorithmId: string
+  config: RunConfig
+  timestamp: number
+}
+
+interface HistoryEntry {
+  id: string
+  algorithmId: string
+  algorithmName: string
+  config: RunConfig
+  metrics: { steps, comparisons, swaps, memoryBytes }
+  timestamp: number
+}
+```
+
+**No External Dependencies:**
+- ✅ No SQL databases required
+- ✅ No backend API calls
+- ✅ No user authentication needed
+- ✅ Fully client-side, privacy-focused
+- ✅ Works offline after initial load
+
+**[SCREENSHOT: Export modal showing CSV and JSON export options with sample data]**
+
+---
+
+## Slide 13: Learning Outcomes & Future Development
 
 ### Educational Impact
 
@@ -357,7 +432,9 @@ interface TraceStep {
 
 **Slide 11:** Do a live demo of changing parameters and watching algorithm behavior change.
 
-**Slide 12:** Conclude with the educational mission and invite questions.
+**Slide 12:** Demonstrate the export feature - show how to download CSV data and open it in Excel. Emphasize that no server or database is needed - everything runs in the browser.
+
+**Slide 13:** Conclude with the educational mission and invite questions.
 
 ---
 
@@ -375,6 +452,9 @@ To complete this presentation, capture the following screenshots:
 - [ ] Performance metrics panel with color-coded complexity
 - [ ] Instrumented algorithm source code
 - [ ] Settings modal with presets and history
+- [ ] Export modal showing CSV and JSON export options with sample data
+- [ ] Browser developer tools showing localStorage data (optional but helpful)
+- [ ] Downloaded CSV file opened in Excel/Sheets showing algorithm metrics
 - [ ] (Optional) Comparison view if implemented
 
 ---
