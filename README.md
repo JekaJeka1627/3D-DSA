@@ -6,6 +6,89 @@
 
 A dark-themed, React + Three.js playground for visualizing classic data structures and algorithms (DSA) as immersive 3D scenes. The experience highlights performance characteristics (time, space, complexity class) through animated glyphs so learners can *see* how algorithms behave.
 
+## Features
+
+### 🎯 Algorithms & Data Structures
+
+**8 Sorting & Searching Algorithms:**
+- Bubble Sort, Selection Sort, Insertion Sort
+- Merge Sort, Heap Sort, Quick Sort
+- Linear Search, Binary Search
+- Each with live instrumentation tracking steps, comparisons, swaps, and memory usage
+
+**7 Interactive Data Structures:**
+- Array - Static grid visualization
+- Linked List - Sphere chain with insert/delete operations
+- Stack - Vertical stack with push/pop animations
+- Queue - Horizontal queue with enqueue/dequeue
+- Binary Search Tree - Hierarchical node structure with insert operations
+- Binary Heap - Complete binary tree with sift-up/sift-down animations
+- Hash Table - Grid of buckets with collision chain visualization
+
+### 💾 Data Persistence & Management
+
+**Save & Load Presets:**
+- Save algorithm configurations with custom names
+- Load saved presets instantly
+- Persistent storage across browser sessions
+
+**Run History:**
+- Automatic tracking of last 10 algorithm runs
+- Detailed metrics for each run (steps, comparisons, swaps, memory)
+- Load previous runs to compare performance
+
+**User Settings:**
+- Save default animation speed preferences (Slow/Normal/Fast)
+- Save default input size preferences
+- All settings persist using browser localStorage
+
+### 📤 Export & Import
+
+**Export Capabilities:**
+- **CSV Export**: Run history data for analysis in Excel or data tools
+  - Includes timestamp, algorithm name, input size, metrics
+  - One-click download with timestamped filename
+- **JSON Export**: Complete backup of presets and history
+  - Formatted JSON for easy sharing and backup
+  - Preserves all configuration details
+
+**Import Capabilities:**
+- **JSON Import**: Restore presets and history from backup files
+  - Merge imported presets with existing ones
+  - Seamless configuration sharing between sessions
+
+### 🎨 3D Visualization Features
+
+**Performance Glyph Encoding:**
+- **Height** = Operation count / time complexity
+- **Radius** = Memory usage / space complexity
+- **Color** = Efficiency level:
+  - Green (#6bff95) - Efficient: O(log n), O(n)
+  - Yellow (#ffd166) - Moderate: O(n log n)
+  - Red (#ff6b6b) - Expensive: O(n²), O(2^n)
+- **Texture/Material** = Case type (best/average/worst)
+
+**Interactive Controls:**
+- OrbitControls for camera (orbit, pan, zoom)
+- Reset View button to restore camera position
+- Hover tooltips showing detailed metrics
+- Real-time animation playback with speed controls
+
+### 📊 Real-time Metrics
+
+**Algorithm Metrics:**
+- Steps (total operations executed)
+- Comparisons (comparison operations)
+- Swaps (swap operations)
+- Memory usage (bytes, formatted)
+- Big-O complexity notation (best/average/worst cases)
+
+**Data Structure Metrics:**
+- Operations counter
+- Activity rate (operations per second)
+- Size estimation with memory model
+- Last action tracking
+
 ## Project Goals
 
 - Map algorithm performance to 3D attributes (height, radius, color, texture, animation).
@@ -85,10 +168,22 @@ Serves the built assets locally (handy for verifying deployment settings or usin
 - Use `# TODO:` comments to track follow-ups and `# REVIEW:` when another agent/human should double-check logic, per project conventions.
 - Each new feature or bugfix should also update `plans.md`, `tasks.md`, and `log.md` accordingly.
 
-## Next Steps
+## Current Status
 
-1. Expand vertical slice to include additional algorithms/data structures beyond Bubble Sort + Arrays.
-2. Implement instrumentation + playback traces for algorithm animations.
-3. Add comparisons view with synchronized `n` sweeps and multiple glyphs.
+✅ **Completed:**
+- 8 algorithms with full instrumentation and playback
+- 7 interactive data structures with animated operations
+- Data persistence (presets, history, settings)
+- Export/Import functionality (CSV, JSON)
+- Real-time metrics tracking and visualization
+- 3D performance glyph encoding
+- Dark-themed responsive UI
+
+🚧 **In Progress / Future Enhancements:**
+- Comparisons view with synchronized `n` sweeps and multiple glyphs
+- Additional sorting algorithms (Radix Sort, Counting Sort, Shell Sort)
+- Graph data structures (directed/undirected graphs with BFS/DFS)
+- Advanced tree structures (AVL Tree, Red-Black Tree, Trie)
+- Performance profiling charts and analytics dashboard
 
 
