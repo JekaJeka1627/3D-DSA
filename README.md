@@ -3,6 +3,8 @@
 ## Presentation Slides: 
 ## Slideshow version 2: 3D-DSA: Visualizing Data Structures & Algorithms https://docs.google.com/presentation/d/1xFwwt4iSb4ZBJQCOJlbj7alQ8WKW__NhpKZxgKO_0Sc/edit?usp=sharing
 
+demo: https://0xhqli.github.io/3D-DSA/
+
 A dark-themed, React + Three.js playground for visualizing classic data structures and algorithms (DSA) as immersive 3D scenes. The experience highlights performance characteristics (time, space, complexity class) through animated glyphs so learners can *see* how algorithms behave.
 
 ## Features

@@ -53,7 +53,7 @@ export default function App() {
       last = now
       setStepIndex((i) => {
         let inc = 0
-        if (speed === 'Slow') inc = dt >= 32 ? 1 : 0
+        if (speed === 'Slow') inc = dt >= 18 ? 1 : 0
         else if (speed === 'Normal') inc = dt >= 16 ? 1 : 0
         else inc = 2
         const next = i + inc
